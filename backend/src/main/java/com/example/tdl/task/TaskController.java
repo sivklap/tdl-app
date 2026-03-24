@@ -9,17 +9,16 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
-/**
- * REST endpoints for the Task List (TDL) app.
- *
- * Beginner note: these methods are currently "stubs" so you can wire up the Angular UI
- * without implementing everything at once.
- */
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
+
 @RequestMapping("/api/tasks")
 public class TaskController {
 
@@ -31,37 +30,63 @@ public class TaskController {
 
 	@GetMapping
 	public List<Task> list() {
-		// TODO: return taskRepository.findAll()
-		return List.of();
+		return taskRepository.getTasks();
 	}
 
+	@GetMapping("/{id}")
+    public Task getById(@PathVariable Long id) {
+        Task task = taskRepository.getTask(id);
+        if (task == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found");
+        }
+        return task;
+    }
+
 	@PostMapping
-	public Task create(@RequestBody CreateTaskRequest request) {
-		// TODO: validate request.title, then save
-		throw new UnsupportedOperationException("TODO: implement create() (POST /api/tasks)");
+	public ResponseEntity<ApiResponse<Task>> create(@RequestBody CreateTaskRequest request) {
+		Task task = new Task(taskRepository.generateId(), request.title(), request.description(), request.dueDate());
+
+		taskRepository.addTask(task);
+		
+		return ResponseEntity
+			.status(HttpStatus.CREATED)
+			.body(new ApiResponse<>(task));
 	}
 
 	@PutMapping("/{id}")
-	public Task update(@PathVariable Long id, @RequestBody UpdateTaskRequest request) {
-		// TODO: load existing task; update title/done; save
-		throw new UnsupportedOperationException("TODO: implement update() (PUT /api/tasks/{id})");
+	public ResponseEntity<ApiResponse<Task>> update(@PathVariable Long id, @RequestBody UpdateTaskRequest request) {
+		Task task = taskRepository.getTask(id);
+		if (task == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND , "Task not found");
+		}
+
+		if(request.title() != null) task.setTitle(request.title());
+		if(request.description() != null) task.setDescription(request.description());
+		if(request.done() != null) task.setDone(request.done());
+		if(request.dueDate() != null) task.setDueDate(request.dueDate());
+
+		return ResponseEntity
+			.status(HttpStatus.OK)
+			.body(new ApiResponse<>(task));
 	}
+
 
 	@DeleteMapping("/{id}")
-	public void delete(@PathVariable Long id) {
-		// TODO: delete or 404 if missing
-		throw new UnsupportedOperationException("TODO: implement delete() (DELETE /api/tasks/{id})");
-	}
-
-	public record CreateTaskRequest(String title) {}
-
-	/**
-	 * Fields are optional so the client can send only what it wants to update.
-	 */
-	public record UpdateTaskRequest(String title, Boolean done) {
-		public UpdateTaskRequest {
-			// no validation in the stub version
+	public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+		Task task = taskRepository.getTask(id);
+		if (task == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND , "Task not found");
 		}
+		
+		taskRepository.deleteTask(id);
+		return ResponseEntity.noContent().build();
 	}
+
+	public record CreateTaskRequest(String title, String description, LocalDateTime dueDate) {}
+
+	public record UpdateTaskRequest(String title, String description, LocalDateTime dueDate, Boolean done) {}
+
+	public record ApiResponse<T>(T data) {}
+
 }
 

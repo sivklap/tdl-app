@@ -1,13 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, catchError, throwError } from 'rxjs';
 
 import { Task } from './task.model';
 
-/**
- * TaskService talks to the Java backend.
- * TODO: implement real HTTP calls once you confirm the backend endpoints.
- */
 @Injectable({
   providedIn: 'root',
 })
@@ -17,19 +13,28 @@ export class TaskService {
   constructor(private readonly http: HttpClient) {}
 
   getTasks(): Observable<Task[]> {
-    return throwError(() => new Error('TODO: implement getTasks()'));
+    return this.http.get<Task[]>(this.baseUrl).pipe(
+      catchError((err) => {
+        console.error('Error fetching tasks', err);
+        return throwError(() => err);
+      })
+    );
   }
 
-  createTask(title: string): Observable<Task> {
-    return throwError(() => new Error('TODO: implement createTask()'));
+  createTask(task: {title: string, description: string, dueDate: string}): Observable<Task> {  
+    return this.http.post<Task>(this.baseUrl, task);
   }
 
-  updateTask(id: number, patch: Partial<Pick<Task, 'title' | 'done'>>): Observable<Task> {
-    return throwError(() => new Error('TODO: implement updateTask()'));
+  updateTask(id: number, put: Partial<Task>): Observable<Task> {
+    return this.http.patch<Task>(`${this.baseUrl}/${id}`, put);
   }
 
   deleteTask(id: number): Observable<void> {
-    return throwError(() => new Error('TODO: implement deleteTask()'));
+    return this.http.delete<void>(`${this.baseUrl}/${id}`).pipe(
+      catchError(err => {
+        console.error('Delete failed', err);
+        return throwError(() => err);
+      })
+    );
   }
 }
-

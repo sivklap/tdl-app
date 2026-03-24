@@ -1,6 +1,17 @@
 <div>
   <h2>Tasks</h2>
 
-  <!-- TODO: iterate over tasks and render checkbox + delete button -->
-</div>
+  <div *ngFor="let task of tasks">
+    <input
+      type="checkbox"
+      [checked]="task.done"
+      (change)="onToggleDone(task)"
+    />
 
+    <strong>{{ task.title }}</strong>
+    <span> - {{ task.description }}</span>
+    <span> - {{ task.dueDate }}</span>
+
+    <button (click)="onDelete(task)">Delete</button>
+  </div>
+</div>

@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { TaskService } from '../task.service';
 import { Task } from '../task.model';
 
@@ -13,19 +12,34 @@ import { Task } from '../task.model';
 export class TaskListComponent implements OnInit {
   tasks: Task[] = [];
 
-  // TODO: add loading/error state for better UX
   constructor(private readonly taskService: TaskService) {}
 
   ngOnInit(): void {
-    // TODO: this.tasks = await this.taskService.getTasks().toPromise()
+    this.taskService.getTasks().subscribe({
+      next: (tasks) => {
+        console.log(tasks)
+        this.tasks = tasks; 
+      },
+      error: (err) => console.error(err)
+    });
   }
 
-  onToggleDone(_task: Task): void {
-    // TODO: call taskService.updateTask(task.id, { done: !task.done })
+  onToggleDone(task: Task): void {
+    this.taskService.updateTask(task.id, { done: !task.done }).subscribe({
+      next: () => {
+        task.done = !task.done;
+      },
+      error: (err) => console.error(err)
+    });
   }
 
-  onDelete(_task: Task): void {
-    // TODO: call taskService.deleteTask(task.id) then refresh list
+  onDelete(task: Task): void {
+    this.taskService.deleteTask(task.id).subscribe({
+      next: () => {
+        this.tasks = this.tasks.filter(t => t.id != task.id)
+      },
+      error: (err) => console.error(err)
+    })
   }
 }
 
