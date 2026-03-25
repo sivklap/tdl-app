@@ -1,2 +1,18 @@
-/* Global styles for the TDL app. */
-
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    color: #1f2937;
+    background: #f5f7fb;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+  
+  button,
+  input,
+  textarea {
+    font: inherit;
+  }

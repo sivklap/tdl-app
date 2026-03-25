@@ -1,15 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TaskListComponent } from './tdl/task-list/task-list.component';
+import { TaskFormComponent } from './tdl/task-form/task-form.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, TaskListComponent],
+  imports: [CommonModule, TaskListComponent, TaskFormComponent],
   templateUrl: './app.component.html',
+  styleUrl: './app.component.css'
 })
 
 export class AppComponent {
-  // TODO: wire up the Task UI here once Task components/services exist
+  @ViewChild(TaskListComponent) taskListComponent!: TaskListComponent;
+  
+  onTaskAdded(): void {
+    this.taskListComponent.loadTasks()
+  }
 }
 

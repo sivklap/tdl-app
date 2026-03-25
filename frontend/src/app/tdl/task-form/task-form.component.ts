@@ -1,7 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Task } from '../task.model';
 import { TaskService } from '../task.service';
 
 @Component({
@@ -9,13 +8,17 @@ import { TaskService } from '../task.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './task-form.component.html',
+  styleUrl: './task-form.component.css'
 })
+
 export class TaskFormComponent {
   title = '';
   description = '';
   dueDate = '';
 
   constructor(private readonly taskService: TaskService) {}
+
+  @Output() taskAdded = new EventEmitter<void>();
 
   onAdd(): void {
     this.taskService.createTask({
@@ -27,6 +30,7 @@ export class TaskFormComponent {
         this.title = '', 
         this.description = '', 
         this.dueDate = ''
+        this.taskAdded.emit()
       }, 
       error: (err) => {
         console.error(err)

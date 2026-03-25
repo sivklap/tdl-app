@@ -1,17 +1,41 @@
-<div>
-  <h2>Tasks</h2>
 
-  <div *ngFor="let task of tasks">
-    <input
-      type="checkbox"
-      [checked]="task.done"
-      (change)="onToggleDone(task)"
-    />
 
-    <strong>{{ task.title }}</strong>
-    <span> - {{ task.description }}</span>
-    <span> - {{ task.dueDate }}</span>
+<div class="task-list">
+  <h2 class="task-list-title">Tasks</h2>
 
-    <button (click)="onDelete(task)">Delete</button>
+  <div *ngIf="loading" class="loader"></div>
+
+  <div *ngIf="!loading">
+  
+  <div class="task-card" *ngFor="let task of tasks">
+    
+    <label class="task-main">
+      <input
+        type="checkbox"
+        class="task-checkbox"
+        [checked]="task.done"
+        (change)="onToggleDone(task)"
+      />
+
+      <div class="task-content">
+        <div class="task-title" [class.done]="task.done">
+          {{ task.title }}
+        </div>
+
+        <div class="task-description">
+          {{ task.description }}
+        </div>
+
+        <div class="task-date">
+          {{ task.dueDate | date:'medium' }}
+        </div>
+      </div>
+    </label>
+
+    <button class="delete-btn" (click)="onDelete(task)">
+      ✕
+    </button>
+
+  </div>
   </div>
 </div>
